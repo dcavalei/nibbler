@@ -33,4 +33,4 @@
 
 # IDE's
 cmake-build-*
-build/*
+build*

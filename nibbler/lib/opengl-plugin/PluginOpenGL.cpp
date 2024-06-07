@@ -31,7 +31,7 @@ namespace interface {
         glEnd();
         glFlush();
     }
-    void timer(int value) {
+    void timer([[maybe_unused]] int value) {
         glutPostRedisplay();
         glutTimerFunc(100, timer, 0);  // 100 ms timer
     }

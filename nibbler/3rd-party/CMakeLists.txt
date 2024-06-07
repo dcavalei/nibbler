@@ -1,2 +1,6 @@
-add_subdirectory(opengl)
-add_subdirectory(spdlog)
+if (CMAKE_BUILD_TYPE MATCHES "CI-TMP")
+    add_subdirectory(spdlog)
+else ()
+    add_subdirectory(opengl)
+    add_subdirectory(spdlog)
+endif ()

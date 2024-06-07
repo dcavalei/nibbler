@@ -18,7 +18,7 @@ namespace game::logic {
     enum class State { MainMenu, Playing, Paused, GameOver, Exit };
     enum class Event { START, EXIT, UP, DOWN, LEFT, RIGHT, ENTER };
 
-    static std::string_view toString(Event event) {
+    [[maybe_unused]] static std::string_view toString(Event event) {
         switch (event) {
             case Event::START: return "START";
             case Event::EXIT: return "EXIT";
@@ -30,7 +30,7 @@ namespace game::logic {
             default: return "WTF";
         }
     }
-    static std::string_view toString(State event) {
+    [[maybe_unused]] static std::string_view toString(State event) {
         switch (event) {
             case State::MainMenu: return "MainMenu";
             case State::Playing: return "Playing";
