@@ -54,7 +54,7 @@ namespace interface {
     void destroy(IPlugin *);
     }
 
-    static std::string_view toString(Input input) {
+    [[maybe_unused]] static std::string_view toString(Input input) {
         switch (input) {
             case Input::ARROW_UP: return "ARROW_UP";
             case Input::ARROW_DOWN: return "ARROW_DOWN";
