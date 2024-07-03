@@ -12,7 +12,7 @@ namespace interface {
        public:
         std::string greet() override;
         void register_cb(Input input, Callback sig) override;
-        void setup_completed(std::future<void> future) override;
+        void entrypoint(std::future<void> future) override;
         std::future<void> request_shutdown() override;
         void display_menu(Menu const &) override;
         void display_game(std::vector<ARGB> const &) override;
