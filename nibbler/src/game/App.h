@@ -1,7 +1,9 @@
 #pragma once
 
-#include "game/logic/StateMachine.h"
-#include "game/plugin/PluginManager.h"
+#include "game/plugin/Plugin.h"
+#include "game/state/Context.h"
+#include "game/state/Event.h"
+#include "game/worker/Worker.h"
 
 namespace game {
     class App {
@@ -16,7 +18,11 @@ namespace game {
 
        private:
         std::vector<std::string_view> _args{};
-        plugin::PluginManager _pm;
-        logic::StateMachine _sm;
+        std::tuple<std::atomic<bool>, std::condition_variable, std::mutex> _lmao_exit;
+        std::unique_ptr<plugin::PluginSwitcher> _plugin_switcher;
+        std::unique_ptr<state::EventQueue> _event_queue;
+        std::unique_ptr<state::Context> _context;
+        std::unique_ptr<worker::Worker> _worker;
+        std::unique_ptr<config::Config> _conf;
     };
 }  // namespace game

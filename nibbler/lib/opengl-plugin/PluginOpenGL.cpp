@@ -1,23 +1,23 @@
 #include "PluginOpenGL.h"
 
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 #include <spdlog/spdlog.h>
-#include <termios.h>
 
+#include <future>
 #include <sstream>
 
 namespace interface {
-    std::unordered_map<interface::Input, interface::signal> g_callbacks;  // TODO: check
+    std::unordered_map<interface::Input, interface::Callback> g_callbacks;  // TODO: check
 
     std::string PluginOpenGL::greet() { return "Hello from plugin!"; }
-    void PluginOpenGL::register_callback(Input input, signal sig) {
+    void PluginOpenGL::register_cb(Input input, Callback sig) {
         if (!sig && g_callbacks.contains(input)) {
-            spdlog::debug("[register_callback] Unregister signal: {}", toString(input));
+            SPDLOG_DEBUG("Unregister signal: {}", toString(input));
             g_callbacks.erase(input);
         } else if (!sig) {
-            spdlog::warn("Cannot register Input {} with a non-callable signal! Skipping...", toString(input));
+            SPDLOG_WARN("Cannot register Input {} with a non-callable signal! Skipping...", toString(input));
         } else {
-            spdlog::debug("[register_callback] Register signal: {}", toString(input));
+            SPDLOG_DEBUG("Register signal: {}", toString(input));
             g_callbacks[input] = sig;
         }
     }
@@ -30,39 +30,67 @@ namespace interface {
         glVertex3f(0.0, 0.0, 0.5);
         glEnd();
         glFlush();
+
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glutSwapBuffers();
     }
     void timer([[maybe_unused]] int value) {
         glutPostRedisplay();
         glutTimerFunc(100, timer, 0);  // 100 ms timer
     }
-    void keyHandler(unsigned char key, int x, int y) {
-        spdlog::debug("key: {}, x: {}, y: {}", key, x, y);
-        if (key == 27) {
-            g_callbacks[Input::ESC]();
-        } else if (1) {
+    void keyHandler(unsigned char key, int, int) {
+        switch (key) {
+            case 13: g_callbacks[Input::ENTER](); break;
+            case 27: g_callbacks[Input::ESC](); break;
+            case 49: g_callbacks[Input::ONE](); break;
+            case 50: g_callbacks[Input::TWO](); break;
+            case 51: g_callbacks[Input::THREE](); break;
+            case 97: g_callbacks[Input::A](); break;
+            case 115: g_callbacks[Input::S](); break;
+            case 100: g_callbacks[Input::D](); break;
+            case 119: g_callbacks[Input::W](); break;
+            default: SPDLOG_DEBUG("Key number: {}", key);
         }
     }
-    void PluginOpenGL::display_menu(const interface::IMenu &) {}
+    void PluginOpenGL::display_menu(const interface::Menu &) {}
 
-    void PluginOpenGL::setup_completed() {
-        static auto t = std::thread([]() {  // this is a bs for dev purposes
-            static int ac = 1;
-            static char const *av[] = {"nibbler", nullptr};
-            glutInit(&ac, (char **)av);
-            glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-            glutInitWindowSize(800, 600);
-            glutCreateWindow("Snake Game");
-            glutDisplayFunc(display);
+    void PluginOpenGL::display_game(std::vector<ARGB> const &) {}
 
-            glutKeyboardFunc(keyHandler);
-            glutTimerFunc(100, timer, 0);
+    static int ac = 1;
+    static char const *av[] = {"nibbler", nullptr};
 
-            glEnable(GL_DEPTH_TEST);
-            glutMainLoop();
-        });
-        spdlog::critical("OKKKKKKKKKKKKK");
+    void PluginOpenGL::setup_completed(std::future<void> future) {
+        SPDLOG_INFO("PluginOpenGL starting...");
+        glutInit(&ac, (char **)av);
+        glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+        glutInitWindowSize(800, 600);
+        glutCreateWindow("Snake Game");
+        glutDisplayFunc(display);
+
+        glutKeyboardFunc(keyHandler);
+        glutTimerFunc(100, timer, 0);
+        glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
+        glEnable(GL_DEPTH_TEST);
+        future.wait();  // wait for the main process
+        glutMainLoop();
+        SPDLOG_DEBUG("PluginOpenGL exiting loop...");
     }
 
+    std::future<void> PluginOpenGL::request_shutdown() {
+        SPDLOG_INFO("PluginOpenGL graceful shutdown...");
+        std::promise<void> promise;
+        auto future = promise.get_future();
+
+        std::thread([p = std::move(promise)]() mutable {
+            SPDLOG_DEBUG("PluginOpenGL starting shutdown worker...");
+            glutLeaveMainLoop();
+            std::this_thread::sleep_for(std::chrono::milliseconds(300));  // TODO: glut needs some time to exit...
+            p.set_value_at_thread_exit();
+            SPDLOG_DEBUG("PluginOpenGL exiting shutdown worker...");
+        }).detach();
+        return future;
+    }
     extern "C" {
     IPlugin *create() { return new PluginOpenGL; }
     void destroy(IPlugin *p) { delete p; }
