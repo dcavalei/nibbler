@@ -5,9 +5,9 @@
 #include <vector>
 
 namespace interface {
-    struct IMenu {
+    struct Menu {
         std::string_view name;
-        std::vector<std::string_view> options;
         unsigned short hover_pos;
+        std::vector<std::string_view> options;
     };
 }  // namespace interface

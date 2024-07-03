@@ -4,10 +4,10 @@ TODO
 
 ## Install Dependencies (Ubuntu 22.04)
 
-### OpenGL
+### OpenGL -> freeglut3
 ```shell
 sudo apt update
-sudo apt install -y libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev
+sudo apt install freeglut3 freeglut3-dev
 ```
 
 ### Place Holder
