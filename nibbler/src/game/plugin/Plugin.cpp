@@ -144,4 +144,13 @@ namespace game::plugin {
             SPDLOG_WARN("{}", error.what());
         }
     }
+
+    void PluginSwitcher::handle_event(state::Event event) {
+        switch (event) {
+            case state::Event::PLUGIN_1: switch_plugin("1"); break;
+            case state::Event::PLUGIN_2: switch_plugin("2"); break;
+            case state::Event::PLUGIN_3: switch_plugin("3"); break;
+            default: SPDLOG_DEBUG("Ignoring event {}", toString(event));
+        }
+    }
 }  // namespace game::plugin

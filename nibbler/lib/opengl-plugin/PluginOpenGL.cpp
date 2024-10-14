@@ -60,7 +60,7 @@ namespace interface {
     static int ac = 1;
     static char const *av[] = {"nibbler", nullptr};
 
-    void PluginOpenGL::setup_completed(std::future<void> future) {
+    void PluginOpenGL::entrypoint(std::future<void> future) {
         SPDLOG_INFO("PluginOpenGL starting...");
         glutInit(&ac, (char **)av);
         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
