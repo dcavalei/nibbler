@@ -44,7 +44,7 @@ namespace game {
             // make this better, this is smelly asf
             std::promise<void> promise;
             std::thread([&plugin, future = promise.get_future()]() mutable {
-                plugin.setup_completed(std::move(future));
+                plugin.entrypoint(std::move(future));
             }).detach();
 
             using interface::Input;
