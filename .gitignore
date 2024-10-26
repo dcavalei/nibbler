@@ -34,3 +34,4 @@
 # IDE's
 cmake-build-*
 build*
+.vscode
