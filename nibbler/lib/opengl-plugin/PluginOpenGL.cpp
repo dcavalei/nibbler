@@ -7,9 +7,18 @@
 #include <sstream>
 
 namespace interface {
+    //=====================================================================================================================
+    // Global variables
+    //=====================================================================================================================
+
     std::unordered_map<interface::Input, interface::Callback> g_callbacks;  // TODO: check
 
+    //=====================================================================================================================
+    // PluginOpenGL
+    //=====================================================================================================================
     std::string PluginOpenGL::greet() { return "Hello from plugin!"; }
+
+    // --------------------------------------------------------------------------------------
     void PluginOpenGL::register_cb(Input input, Callback sig) {
         if (!sig && g_callbacks.contains(input)) {
             SPDLOG_DEBUG("Unregister signal: {}", toString(input));
@@ -21,6 +30,8 @@ namespace interface {
             g_callbacks[input] = sig;
         }
     }
+
+    // --------------------------------------------------------------------------------------
     void display() {
         glClear(GL_COLOR_BUFFER_BIT);
         glBegin(GL_POLYGON);
@@ -35,10 +46,14 @@ namespace interface {
 
         glutSwapBuffers();
     }
+
+    // --------------------------------------------------------------------------------------
     void timer([[maybe_unused]] int value) {
         glutPostRedisplay();
         glutTimerFunc(100, timer, 0);  // 100 ms timer
     }
+
+    // --------------------------------------------------------------------------------------
     void keyHandler(unsigned char key, int, int) {
         switch (key) {
             case 13: g_callbacks[Input::ENTER](); break;
@@ -53,13 +68,20 @@ namespace interface {
             default: SPDLOG_DEBUG("Key number: {}", key);
         }
     }
+
+    // --------------------------------------------------------------------------------------
     void PluginOpenGL::display_menu(const interface::Menu &) {}
 
+    // --------------------------------------------------------------------------------------
     void PluginOpenGL::display_game(std::vector<ARGB> const &) {}
 
+    //=====================================================================================================================
+    // Static initialization
+    //=====================================================================================================================
     static int ac = 1;
     static char const *av[] = {"nibbler", nullptr};
 
+    // --------------------------------------------------------------------------------------
     void PluginOpenGL::entrypoint(std::future<void> future) {
         SPDLOG_INFO("PluginOpenGL starting...");
         glutInit(&ac, (char **)av);
@@ -77,6 +99,7 @@ namespace interface {
         SPDLOG_DEBUG("PluginOpenGL exiting loop...");
     }
 
+    // --------------------------------------------------------------------------------------
     std::future<void> PluginOpenGL::request_shutdown() {
         SPDLOG_INFO("PluginOpenGL graceful shutdown...");
         std::promise<void> promise;
@@ -91,8 +114,16 @@ namespace interface {
         }).detach();
         return future;
     }
+
+    //=====================================================================================================================
+    // extern "C"
+    //=====================================================================================================================
     extern "C" {
+
+    // --------------------------------------------------------------------------------------
     IPlugin *create() { return new PluginOpenGL; }
+
+    // --------------------------------------------------------------------------------------
     void destroy(IPlugin *p) { delete p; }
     }
 }  // namespace interface
