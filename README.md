@@ -18,9 +18,11 @@ mkdir build
 cd build
 cmake .. -DCMAKE_BUILD_TYPE=<Debug|Release>
 cmake --build . --target all
+```
 
 ## How to Play
-# ./nibbler/src/nibbler ./nibbler/lib/opengl-plugin/libopengl-plugin.so ./nibbler/lib/opengl-plugin/libopengl-plugin.so ./nibbler/lib/opengl-plugin/libopengl-plugin.so
-# Look at the terminal to understand the game state, there's no graphics yet.
-# Press Enter twice. Use ASDW keys to play.
+```shell
+ ./nibbler/src/nibbler ./nibbler/lib/opengl-plugin/libopengl-plugin.so ./nibbler/lib/opengl-plugin/libopengl-plugin.so ./nibbler/lib/opengl-plugin/libopengl-plugin.so
+ Look at the terminal to understand the game state, there's no graphics yet.
+ Press Enter twice. Use ASDW keys to play.
 ```
