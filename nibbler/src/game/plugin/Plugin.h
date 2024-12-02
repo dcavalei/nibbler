@@ -163,7 +163,9 @@ namespace game::plugin {
         void handle_event(state::Event event);
 
        private:
-        PluginManager _plugin_manager;
         std::function<void(interface::IPlugin &)> _setup_func;
+
+       public:
+        PluginManager _plugin_manager;
     };
 }  // namespace game::plugin

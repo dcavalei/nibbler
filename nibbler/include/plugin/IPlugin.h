@@ -51,7 +51,7 @@ namespace interface {
             case Input::ONE: return "ONE";
             case Input::TWO: return "TWO";
             case Input::THREE: return "THREE";
-            default: return "WTF";
+            default: return "Bad Input!";
         }
     }
 

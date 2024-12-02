@@ -22,7 +22,7 @@ namespace game::state {
         /**
          * @brief Context Constructor.
          */
-        Context(config::Config& conf);
+        Context(config::Config& conf, plugin::PluginSwitcher& plugin_switcher);
         ~Context() = default;
 
         /**
@@ -52,7 +52,10 @@ namespace game::state {
        private:
         config::Config& _config;
         std::unique_ptr<State> _state;
-        std::unordered_map<std::string_view, std::vector<Callback>> subs;
+        std::unordered_map<std::string_view, std::vector<Callback>> _subs;
+
+       public:
+        plugin::PluginSwitcher& plugin_switcher;
     };
 
     class State {
@@ -78,20 +81,22 @@ namespace game::state {
     void Context::subscribe(Callback&& cb) {
         static_assert(std::is_base_of_v<State, T>, "T must derive from State");
         SPDLOG_DEBUG("Callback 0x{:x} subscribed to State transition {}", (std::uintptr_t)&cb, typeid(T).name());
-        subs[typeid(T).name()].push_back(cb);
+        _subs[typeid(T).name()].push_back(cb);
     }
 
+    // Private
     template <class T>
     void Context::_change_state() {
         static_assert(std::is_base_of_v<State, T>, "T must derive from State");
         SPDLOG_DEBUG("Changing State({})", typeid(T).name());
         _state = std::make_unique<T>(*this);
-        for (auto& cb : subs[typeid(T).name()]) {
+        for (auto& cb : _subs[typeid(T).name()]) {
             SPDLOG_DEBUG("Notifying Callback 0x{:x}", (std::uintptr_t)&cb);
             cb();
         }
     }
 
+    // Public
     template <class T>
     void State::context_change_state() {
         SPDLOG_DEBUG("Requesting Context to change State({})", typeid(T).name());
